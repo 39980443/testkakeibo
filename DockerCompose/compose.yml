@@ -1,0 +1,55 @@
+# 1番上の階層、決まり文句のようなもの
+services:
+  # 2番目の階層、作りたいコンテナを定義する。任意の名前をつけられる。
+  php-app:
+    #コンテナの名前
+    container_name: run-php-app
+    #ビルドするDockerfileの場所
+    build: ./app
+    #ポート（アプリケーションをどのポートに繋ぐか） Macbook:18080からコンテナ内のポート番号：80に繋ぐ　あとでポートについて調べる
+    ports:
+      - "18080:80"
+    # ローカルPCとコンテナ間でディレクトリをバインド（同期）できる apacheの初期設定が/app/src:/var/www/html/にある
+    volumes:
+      - ./app/src:/var/www/html/
+    #利用するネットワーク
+    networks:
+      - php-mysql-networks
+    # 指定したサービスの後にコンテナを起動する
+    depends_on:
+      - php-db
+  php-db:
+    #Dockerfileを使わない場合は直接imageを指定する
+    image: mysql:8.0
+    container_name: run-php-db
+    ports:
+      - "3307:3306"
+    #dockerhub　mysqlの公式イメージに載っている 環境変数
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=test
+      - MYSQL_DATABASE=test_db
+    volumes:
+      #コンテナないの下記の場所に設定することで勝手にSQLを実行してくれる
+      - ./mysql/initdb.d:/docker-entrypoint-initdb.d
+      #永続化左側のvolumesに対して永続化してくれる
+      - mysql-data:/var/lib/mysql
+    #指定しなくても勝手に作ってくれる
+    networks:
+      - php-mysql-networks
+  php-adminer:
+    image: adminer:4.8.1
+    container_name: adminer
+    ports:
+      - "8081:8080"
+    networks:
+      - php-mysql-networks
+    depends_on:
+     - php-db
+volumes:
+  mysql-data:
+
+networks:
+ php-mysql-networks:
+
