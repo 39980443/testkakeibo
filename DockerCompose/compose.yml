@@ -32,7 +32,7 @@ services:
       - MYSQL_DATABASE=test_db
     volumes:
       #コンテナないの下記の場所に設定することで勝手にSQLを実行してくれる
-      #- ./mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./mysql/initdb.d:/docker-entrypoint-initdb.d
       #永続化左側のvolumesに対して永続化してくれる
       - mysql-data:/var/lib/mysql
     #指定しなくても勝手に作ってくれる
@@ -42,7 +42,7 @@ services:
     image: adminer:4.8.1
     container_name: adminer
     ports:
-      - "10.9.99.52:8081:8080"
+      - "8081:8080"
     networks:
       - php-mysql-networks
     depends_on:
